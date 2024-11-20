@@ -123,3 +123,13 @@ export const updateUserProfile = async (req, res, next) => {
     next(error);
   }
 };
+
+// ! 5-Function To Get Check Auth:
+export const getCheckAuth = async (req, res, next) => {
+  try {
+    res.status(200).json(req.user);
+  } catch (error) {
+    console.log("Error getting check auth", error.message);
+    next(error);
+  }
+};

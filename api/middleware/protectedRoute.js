@@ -4,7 +4,7 @@ import User from "../models/user.model.js";
 
 const protectedRoute = async (req, res, next) => {
   try {
-    const token = req.cookies("access_token");
+    const token = req.cookies.access_token;
     if (!token) {
       return next(handleErrors(401, "UnAuthorized - No Access Token Provided"));
     }
@@ -12,7 +12,7 @@ const protectedRoute = async (req, res, next) => {
     if (!decoded) {
       return next(handleErrors(401, "Invalid Access Token"));
     }
-    const user = await User.findById(decoded.userId);
+    const user = await User.findById(decoded.userId).select("-password");
     if (!user) {
       return next(handleErrors(404, "Invalid User"));
     }
