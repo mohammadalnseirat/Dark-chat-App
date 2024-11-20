@@ -93,6 +93,9 @@ export const signIn = async (req, res, next) => {
 //! 3-Function To Log Out:
 export const logOut = async (req, res, next) => {
   try {
+    // res.cookie("jwt", "", { maxAge: 0 }); // second way to log out
+    res.clearCookie("access_token");
+    res.status(200).json({ message: "Logged out successfully" });
   } catch (error) {
     console.log("Error logging out", error.message);
     next(error);
