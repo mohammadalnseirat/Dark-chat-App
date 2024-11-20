@@ -64,6 +64,26 @@ export const signUp = async (req, res, next) => {
 //! 2-Function To Sign In:
 export const signIn = async (req, res, next) => {
   try {
+    const { email, password } = req.body;
+    if (!email || !password || email === "" || password === "") {
+      return next(handleErrors(400, "All fields are required"));
+    }
+    const user = await User.findOne({ email });
+    if (!user) {
+      return next(handleErrors(401, "Invalid credentials"));
+    }
+    const isMatchPassword = bcryptjs.compareSync(password, user.password);
+    if (!isMatchPassword) {
+      return next(handleErrors(401, "Invalid email or password"));
+    }
+    //? generate Token:
+    generateTokenAndSetCookie(user._id, res);
+    res.status(200).json({
+      _id: user._id,
+      email: user.email,
+      fullName: user.fullName,
+      profilePicture: user.profilePicture,
+    });
   } catch (error) {
     console.log("Error signing in", error.message);
     next(error);
