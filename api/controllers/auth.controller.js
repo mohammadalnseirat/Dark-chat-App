@@ -1,3 +1,4 @@
+import cloudinary from "../config/cloudinary.js";
 import { generateTokenAndSetCookie } from "../helpers/generateTokenAndSetCookie.js";
 import User from "../models/user.model.js";
 import { handleErrors } from "../utils/error.js";
@@ -98,6 +99,27 @@ export const logOut = async (req, res, next) => {
     res.status(200).json({ message: "Logged out successfully" });
   } catch (error) {
     console.log("Error logging out", error.message);
+    next(error);
+  }
+};
+
+//! 4-Function To Update User Profile:
+export const updateUserProfile = async (req, res, next) => {
+  try {
+    const { profilePicture } = req.body;
+    const userId = req.user._id;
+    if (!profilePicture) {
+      return next(handleErrors(400, "Profile picture is required"));
+    }
+    const uploadedResponse = await cloudinary.uploader.upload(profilePicture);
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { profilePicture: uploadedResponse.secure_url },
+      { new: true }
+    );
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    console.log("Error updating user profile", error.message);
     next(error);
   }
 };
