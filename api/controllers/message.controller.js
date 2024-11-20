@@ -20,6 +20,17 @@ export const getUserForSidebar = async (req, res, next) => {
 //! 2-Function To Get Messages:
 export const getMessages = async (req, res, next) => {
   try {
+    const { id: userToChatId } = req.params;
+    const myId = req.user._id;
+    //? find the messages:
+    const messages = await Message.find({
+      $or: [
+        { sender: myId, receiver: userToChatId },
+        { sender: userToChatId, receiver: myId },
+      ],
+    });
+    //? send the response back:
+    res.status(200).json(messages);
   } catch (error) {
     console.log("Error getting messages", error.message);
     next(error);
