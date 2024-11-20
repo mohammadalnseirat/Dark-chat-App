@@ -1,6 +1,7 @@
 import { handleErrors } from "../utils/error.js";
 import User from "../models/user.model.js";
 import Message from "../models/message.model.js";
+import cloudinary from "../config/cloudinary.js";
 
 //! Function To Get Users for sidebar:
 export const getUserForSidebar = async (req, res, next) => {
@@ -40,6 +41,27 @@ export const getMessages = async (req, res, next) => {
 //! 3-Function To Send Message:
 export const sendMessage = async (req, res, next) => {
   try {
+    const {text,image} = req.body;
+    const {id:receiver} = req.params;
+    const sender = req.user._id;
+    let imageUrl;
+    if(image){
+      const uploadedImageResponse = await cloudinary.uploader.upload(image)
+      imageUrl = uploadedImageResponse.secure_url;
+
+    }
+    // ? create a new message:
+    const newMessage = new Message({
+      text,
+      image:imageUrl,
+      sender,
+      receiver
+    })
+
+    // ? save the message:
+    await newMessage.save();
+    //? send the response back:
+    res.status(201).json(newMessage);
   } catch (error) {
     console.log("Error sending message", error.message);
     next(error);
